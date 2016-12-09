@@ -96,6 +96,7 @@
 				TargetAttributes = {
 					69A8C02A1DF98F5D003F050D = {
 						CreatedOnToolsVersion = 8.1;
+						DevelopmentTeam = K83QP84R99;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -258,6 +259,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = K83QP84R99;
 				INFOPLIST_FILE = IOSLab3A/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.SchoolWork.IOSLab3A;
@@ -270,6 +272,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = K83QP84R99;
 				INFOPLIST_FILE = IOSLab3A/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.SchoolWork.IOSLab3A;
