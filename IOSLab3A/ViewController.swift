@@ -14,6 +14,10 @@ import CoreMotion
 class ViewController: UIViewController {
 
     
+    @IBOutlet weak var zLabel: UILabel!
+    @IBOutlet weak var yLabel: UILabel!
+    @IBOutlet weak var xLabel: UILabel!
+    
     private let manager = CMMotionManager()
     private let FILTER = 0.9
     private let ACCEL_FILTER = 0.9
@@ -43,9 +47,11 @@ class ViewController: UIViewController {
 
     }
     
-    private let MIN_SHAKE_ACCELERATION = 3.0
-    private let MAX_SHAKE_DURATION = 1001.0
+    private let MIN_SHAKE_ACCELERATION = 1.0
+    private let MAX_SHAKE_DURATION = 1.0
     private let MIN_MOVEMENTS = 2
+    private var now = 0.0
+    private var elapsedTime = 0.0
     
     private func tiltPhone(){
         let queue = OperationQueue.main
@@ -62,40 +68,77 @@ class ViewController: UIViewController {
             
             let maxLinearAcceleration = self.getMaxCurrentGForceAccel()
 
+            if (self.elapsedTime > self.MAX_SHAKE_DURATION) {
+                // Too much time has passed. Start over!
+                self.resetShakeDetection()
+            }
+            
             if maxLinearAcceleration > self.MIN_SHAKE_ACCELERATION {
-                let now = Date().timeIntervalSince1970
+                let tmp = Date()
+                self.now = tmp.timeIntervalSince1970
                 
                 // Set the startTime if it was reset to zero
                 if (self.startTime == 0) {
-                    self.startTime = now
+                    self.startTime = Double(self.now)
                 }
                 
-                let elapsedTime = now - self.startTime;
+                self.elapsedTime = self.now - self.startTime
                 
+                print(self.elapsedTime)
+               // print(self.now)
+    
                 // Check if we're still in the shake window we defined
-                if (elapsedTime > self.MAX_SHAKE_DURATION) {
+                if (self.elapsedTime > self.MAX_SHAKE_DURATION) {
                     // Too much time has passed. Start over!
+                    if self.countOfShakes > self.MIN_MOVEMENTS {
+                        self.changeColor()
+                        print("Byt färg")
+                    }
+                    
+                    print("One Sec Passed")
                     self.resetShakeDetection()
                 }
                 else {
                     // Keep track of all the movements
                     self.countOfShakes += 1
-                    
-                    // Check if enough movements have been made to qualify as a shake
-                    if (self.countOfShakes > self.MIN_MOVEMENTS) {
-                        // It's a shake! Notify the listener.
-                        //mShakeListener.onShake();
-                        print("Stop Shaking me....")
-                        // Reset for the next one!
-                        self.resetShakeDetection()
-                    }
+                
                 }
             }
-            
-            
+
         }
     }
     
+    
+    @IBOutlet var background: UIView!
+    
+    private func changeColor(){
+    
+        let rand = arc4random_uniform(7)
+        var color:UIColor? = nil
+            
+        switch rand {
+        case 0:
+            color = UIColor.black
+        case 1:
+            color = UIColor.darkGray
+        case 2:
+            color = UIColor.green
+        case 3:
+            color = UIColor.yellow
+        case 4:
+            color = UIColor.orange
+        case 5:
+            color = UIColor.purple
+        case 6:
+            color = UIColor.magenta
+        default:
+            color = UIColor.blue
+        }
+        
+        background.backgroundColor = color
+            
+        
+    }
     /// The three underlaying methods is to detect tilting. Adding a filter,
     /// calculating an angle and printing.
     private func filterTilt(x:Double,y:Double,z:Double){
@@ -111,9 +154,16 @@ class ViewController: UIViewController {
 
     }
     private func printAngles(){
-        print("X:  \(Int((tiltAngle[X] * 180) / π))")
-        print("Y:  \(Int((tiltAngle[Y] * 180) / π))")
-        print("Z:  \(Int((tiltAngle[Z] * 180) / π))")
+        
+        let x = Int((tiltAngle[X] * 180) / π)
+        let y = Int((tiltAngle[Y] * 180) / π)
+        let z = Int((tiltAngle[Z] * 180) / π)
+        print("X:  \(x)")
+        print("Y:  \(y)")
+        print("Z:  \(z)")
+        xLabel.text = "X:" + String(x)
+        yLabel.text = "Y:" + String(y)
+        zLabel.text = "Z:" + String(z)
     }
     
     /// Gravity components of x, y, and z acceleration
