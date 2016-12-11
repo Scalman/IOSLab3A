@@ -49,9 +49,10 @@ class ViewController: UIViewController {
     
     private let MIN_SHAKE_ACCELERATION = 1.0
     private let MAX_SHAKE_DURATION = 1.0
-    private let MIN_MOVEMENTS = 2
-    private var now = 0.0
-    private var elapsedTime = 0.0
+    private let MIN_MOVEMENTS = 3
+    var timer = Timer()
+    var timer2 = Timer()
+    var isShaking = false
     
     private func tiltPhone(){
         let queue = OperationQueue.main
@@ -67,51 +68,42 @@ class ViewController: UIViewController {
 
             
             let maxLinearAcceleration = self.getMaxCurrentGForceAccel()
-
-            if (self.elapsedTime > self.MAX_SHAKE_DURATION) {
-                // Too much time has passed. Start over!
-                self.resetShakeDetection()
-            }
             
             if maxLinearAcceleration > self.MIN_SHAKE_ACCELERATION {
-                let tmp = Date()
-                self.now = tmp.timeIntervalSince1970
-                
-                // Set the startTime if it was reset to zero
-                if (self.startTime == 0) {
-                    self.startTime = Double(self.now)
+                if(self.timer2.isValid){
+                    self.timer2.invalidate()
                 }
-                
-                self.elapsedTime = self.now - self.startTime
-                
-                print(self.elapsedTime)
-               // print(self.now)
-    
-                // Check if we're still in the shake window we defined
-                if (self.elapsedTime > self.MAX_SHAKE_DURATION) {
-                    // Too much time has passed. Start over!
-                    if self.countOfShakes > self.MIN_MOVEMENTS {
-                        self.changeColor()
-                        print("Byt färg")
-                    }
-                    
-                    print("One Sec Passed")
-                    self.resetShakeDetection()
+                if !self.timer.isValid{
+                    self.timer = Timer.scheduledTimer(timeInterval: self.MAX_SHAKE_DURATION, target:self, selector: #selector(self.changeColor), userInfo: nil, repeats: false)
                 }
-                else {
-                    // Keep track of all the movements
+            } else {
+                if !self.timer2.isValid{
+                    self.timer2 = Timer.scheduledTimer(timeInterval: 0.5, target:self, selector: #selector(self.inTime), userInfo: nil, repeats: false)
+                }
+                if self.timer.isValid {
                     self.countOfShakes += 1
-                
                 }
             }
 
         }
     }
-    
+    func inTime(){
+        if(self.timer.isValid){
+            self.timer.invalidate()
+            countOfShakes = 0
+        }
+    }
     
     @IBOutlet var background: UIView!
     
-    private func changeColor(){
+    func changeColor(){
+        
+        print(countOfShakes)
+        if self.countOfShakes <= self.MIN_MOVEMENTS {
+            timer.invalidate()
+            countOfShakes = 0
+            return
+        }
     
         let rand = arc4random_uniform(7)
         var color:UIColor? = nil
@@ -136,7 +128,9 @@ class ViewController: UIViewController {
         }
         
         background.backgroundColor = color
-            
+        
+        timer.invalidate()
+        countOfShakes = 0
         
     }
     /// The three underlaying methods is to detect tilting. Adding a filter,
@@ -158,9 +152,9 @@ class ViewController: UIViewController {
         let x = Int((tiltAngle[X] * 180) / π)
         let y = Int((tiltAngle[Y] * 180) / π)
         let z = Int((tiltAngle[Z] * 180) / π)
-        print("X:  \(x)")
-        print("Y:  \(y)")
-        print("Z:  \(z)")
+//        print("X:  \(x)")
+//        print("Y:  \(y)")
+//        print("Z:  \(z)")
         xLabel.text = "X:" + String(x)
         yLabel.text = "Y:" + String(y)
         zLabel.text = "Z:" + String(z)
